@@ -1,0 +1,14 @@
+{
+  "ver": "1.1.50",
+  "importer": "prefab",
+  "imported": true,
+  "uuid": "5b3f7fdf-88a0-4187-be9c-1380bc329a42",
+  "files": [
+    ".json"
+  ],
+  "subMetas": {},
+  "userData": {
+    "syncNodeName": "SpriteFrameAnimTest",
+    "hasIcon": false
+  }
+}
