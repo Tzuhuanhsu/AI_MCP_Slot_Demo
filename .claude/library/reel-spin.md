@@ -262,6 +262,25 @@ Reel_3 `54ge/nvxtN26ZEyN5aaQ30` / `ca+gF1Do1DY7HKhEtDhU9Q`。
 
 > **已隨模型汰換移除的歷史踩坑（僅記通則，細節不再保留）**：content-shift／content-slide／recycling／公式化 offset 各版曾遇到——(a)「換圖時機要落在深窗外整整一格、別卡遮罩邊緣」（`_wrapThreshold`/`_currentCenter+2h` 版，現行由頂格在 `_topBaseY` 換圖天然滿足）；(b)「ease-out 減速接等速運動時，曲線初速要對齊等速段速度，否則接縫暴衝」（舊 `_stopTime`/`STOP_DURATION` 版，現行改逐格減速已無此問題）；(c)「離散換格別綁連續量的 `>=` 浮點門檻、要整數化比對次數」（現行由 `_stepAccurate` 鋸齒＋單幀 clamp 保證）；(d) content-slide 的 init 鋪圖與進場流「相位不一致致窗內重複貼圖」（`_stripHead` 修法，窗內零重複的充分條件：圖庫張數 > 可視格數）；(e) `DEFAULT_SPIN_SPEED` 曾誤寫為 10（已為 500）。
 
+## 集中式設定管理（define + ResourceManager 單例，2026-07-07）
+
+> **狀態**：✅ 已實作，經 Spec Kit 流程（`specs/001-reel-config-management/`）。程式碼與磁碟已驗證；Play 模式端到端由使用者手動驗證。
+
+把原本散落於**每個** `ReelView` Inspector 的兩個可調參數改為集中式單一真實來源（Constitution Principle II）：
+
+| 對象 | 舊來源 | 新來源 | 檔案 |
+|------|--------|--------|------|
+| 速度 + 全部調校常數 | `ReelView` 的 `@property speed` + 模組級 `const` | 全域 define（唯讀常數集合 `ReelDefine`） | `assets/scripts/define/ReelDefine.ts` |
+| 符號圖庫 `SpriteFrame[]` | 各 `ReelView` 的 `@property symbolFrames` | Component 型單例，掛單一場景節點、Inspector 一次性指派 | `assets/scripts/singleton/ResourceManager.ts`（`extends Singleton`） |
+
+- **`ReelView` 改動**：移除 `speed`／`symbolFrames` 兩個 `@property`（僅保留 `symbolStrip` 節點接線）；所有常數改引用 `ReelDefine.*`；`_randomFrame()` = `ResourceManager.instance?.getRandomSymbolFrame() ?? null`；`_initFrames()` 逐格抽圖、`null` 時略過（保留空庫安全行為 FR-006）。**動畫邏輯（`_advance`/`_onStep`/`_travelNodes`/停輪對齊）一字未改，觀感不變（FR-007）。**
+- **依賴方向（單向）**：`ReelView → { ReelDefine, ResourceManager }`；被依賴者不反向認識 View，符合低耦合。`ReelDefine`/`ResourceManager`/`Singleton` 屬跨層基礎設施（`define/`、`singleton/`），不歸 MVC 三層。
+- **`Singleton` 設計要點**：抽象基底只提供 `onLoad`/`onDestroy` 骨架，`static instance` 與登記/清除由子類實作（避免跨子類共用同一 static 欄位致型別失真）；`_registerInstance` 只在 `instance === null` 時登記（保留先登記者）、`_clearInstance` 只在 `instance === this` 時清除（避免誤清後來者）。
+- **場景異動**：`Canvas` 下新增 `ResourceManager` 節點（cid `f014eBJdCxHIbKkMr9b4/OG`），以 `spriteFrameArray` 指派三輪共用的 7 張 `@f9941` SpriteFrame 圖庫（三輪原圖庫相同，故直接沿用）。
+- **踩坑對齊**：指派資產陣列用 `spriteFrameArray`＋uuid 字串陣列；自訂元件設屬性用 cid；新增 `.ts` 後 `project_refresh_assets`＋`query_scene_classes` 確認註冊（沿用既有 memory）。
+
+**通則**：Cocos 中「需 Inspector 指派的資產」無法用純 TS 單例集中——改用 **Component 型單例掛單一節點**即可兼顧「編輯器指派」與「單例集中存取」；純數值設定則用**全域 define 常數**，兩者分工。
+
 ## 後續擴充（尚未做）
 
 - 隨機停輪結果與中獎判定（`stop()` 時選定目標符號、於節點繞回頂端換圖處塞入目標而非純隨機，使其滑進 Center；`_onStopped` 判定連線；GameController 彙整跨輪連線、寫入 `GameModel` 後透過 `UIView.setWin()` / `setBalance()` 更新顯示）。
