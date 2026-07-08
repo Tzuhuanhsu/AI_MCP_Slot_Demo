@@ -219,7 +219,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 320,
+    "_orthoHeight": 363.9929947460596,
     "_near": 1,
     "_far": 2000,
     "_color": {
@@ -5287,31 +5287,31 @@
     "__prefab": null,
     "symbolFrames": [
       {
-        "__uuid__": "5753950d-ccfb-43fa-829d-f32c470796bd@f9941",
+        "__uuid__": "01dff65a-e3e2-401d-ade2-0a5eb5607893@f9941",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "8386abb1-b2ec-4d0e-8cf7-226d136c48a2@f9941",
+        "__uuid__": "07a05d57-0181-4f42-9723-2424464f500a@f9941",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "2fceade0-37bb-4cf7-8c41-401da4ff0ac1@f9941",
+        "__uuid__": "25ca2f9c-c7fe-4f54-9256-cdb0ae91c951@f9941",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "49c30b67-1861-419f-b8d5-3fd84dd60d0d@f9941",
+        "__uuid__": "7446020f-1713-4ff2-9544-8126e6ed4bb4@f9941",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "352acaeb-c43e-4f48-a3b3-35261de175a1@f9941",
+        "__uuid__": "44847cbd-eff4-4f88-9972-f3db2974411d@f9941",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "fc0a9f80-406b-4ed2-be9e-f3460154e7f3@f9941",
+        "__uuid__": "8b81402c-7104-4a2d-b3a8-f3654b00d87e@f9941",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "5e4b0a80-2d29-4b8e-be69-33dc1e70cf92@f9941",
+        "__uuid__": "fc59e954-514a-47ed-85e8-865db7bbbcbf@f9941",
         "__expectedType__": "cc.SpriteFrame"
       }
     ],
