@@ -279,6 +279,18 @@ Reel_3 `54ge/nvxtN26ZEyN5aaQ30` / `ca+gF1Do1DY7HKhEtDhU9Q`。
 - **場景異動**：`Canvas` 下新增 `ResourceManager` 節點（cid `f014eBJdCxHIbKkMr9b4/OG`），以 `spriteFrameArray` 指派三輪共用的 7 張 `@f9941` SpriteFrame 圖庫（三輪原圖庫相同，故直接沿用）。
 - **踩坑對齊**：指派資產陣列用 `spriteFrameArray`＋uuid 字串陣列；自訂元件設屬性用 cid；新增 `.ts` 後 `project_refresh_assets`＋`query_scene_classes` 確認註冊（沿用既有 memory）。
 
+### 圖庫內容替換：debug 純色圖 → Fish_1~7 正式美術（2026-07-08，Spec Kit `specs/update-symbols/`）
+
+> **狀態**：✅ 已實作，磁碟序列化 + reimport 引用有效性均驗證通過；Play 模式手動驗收由使用者執行。
+
+純資產資料替換，**不涉及任何 TypeScript 變更**（`ResourceManager.ts` 對外 API 行為不變，`ReelView` 抽圖流程照舊）：
+
+- `ResourceManager` 節點的 `symbolFrames` 7 筆 `__uuid__` 由 `assets/textures/debug/color_*` 純色佔位圖，改為 `assets/textures/Fish_1.png`~`Fish_7.png` 的 **sprite-frame 子資產**，依序、恰 7 筆。
+- **子資產後綴以編輯器實查為準**：sprite-frame 是 **`@f9941`**，texture 是 `@6c48a`；圖庫必須用 `@f9941`，誤用 texture 會導致引用失效。（tasks.md 正確、requirements.md 內文把兩者寫反，實作時已查證修正。）
+- 7 筆 uuid：`01dff65a-…@f9941`（Fish_1）、`07a05d57-…@f9941`(2)、`25ca2f9c-…@f9941`(3)、`7446020f-…@f9941`(4)、`44847cbd-…@f9941`(5)、`8b81402c-…@f9941`(6)、`fc59e954-…@f9941`(7)。
+- **設定方式**：`component_set_component_property`＋`propertyType: 'spriteFrameArray'`，本次直接成功（未遇 `nodeArray` 那類需改走 `execute_script` 的問題）。
+- **驗證**：`scene_save_scene` 後讀回磁碟 `main.scene`（ResourceManager 元件區塊）確認恰 7 筆、依序 Fish_1→7、後綴皆 `@f9941`、全檔無 `color_` 殘留；Fish_1~7.png 逐一 `reimport_asset` 後 7 筆皆解析為有效 `cc.SpriteFrame`，console/project logs 無 missing/invalid 警告。
+
 **通則**：Cocos 中「需 Inspector 指派的資產」無法用純 TS 單例集中——改用 **Component 型單例掛單一節點**即可兼顧「編輯器指派」與「單例集中存取」；純數值設定則用**全域 define 常數**，兩者分工。
 
 ## 後續擴充（尚未做）
