@@ -14,6 +14,7 @@
 | [reel-spin.md](reel-spin.md) | 轉輪：`ReelView`（**格內鋸齒 `_stepAccurate` 位移＋整排級聯換圖＋停輪減速對齊**：位置由格內鋸齒 `_stepAccurate`（[0,_height)）驅動——全排在單格內平滑下滑、到格邊界彈回並整排 spriteFrame 級聯下移一列（頂格補隨機新圖），靠「節點彈回一格」抵消「整排圖下移一格」形成連貫捲動；停輪逐格 ×0.65 減速、最後一格線性緩降到 `FINAL_EASE_MIN_SPEED`，`_stepAccurate=0` snap 對齊）+ `GameController`（編排）—— 三輪同時 `spin()` 起轉、`scheduleOnce` 依序 `stop(minSteps)` 減速停輪；含單一 Mask、緩衝格藏換圖接縫、單幀 clamp 防呆；API `spin(speed?)`+`stop(minSteps)`+`isIdle()` | ✅ 已實作，**經 Play 模式實跑驗證正確**（演進：content-slide→recycling→公式化 offset→**2026-07-06 使用者親自改為「格內鋸齒 `_stepAccurate`＋整排級聯換圖」（無位置環繞），並清理參數定案**。停輪減速/末端緩降邏輯沿用；已移除 `_slideOffset`／`_wrapCursor`／`_totalHeight`／`_bottomBaseY`／`Label` import 等殘留；**2026-07-06 完成程式碼清理**：過時註解已同步現行模型、`_initFrames` 恢復開場隨機鋪圖（`start()` 時鋪一次）、`_assignWrapFrame` 補 null 檢查；並再移除動態格距欄位 `_height`（格距恆 120，改用常數 `SYMBOL_SPACING`），詳見 reel-spin.md 反省小節） |
 | [state-machine.md](state-machine.md) | `StateMachine<TState>`：通用有限狀態機模組（`assets/utils/`），回呼式、與 cc 無耦合；`ReelView` 已改用 | ✅ 已實作（2026-07-02） |
 | [ui-view.md](ui-view.md) | `UIView`：畫面 UI 呈現層（SPIN／Balance／Bet／Win），純 View + 事件 | ✅ 已實作驗證（2026-07-01） |
+| [reel-spin.md](reel-spin.md)（集中式設定管理小節） | 轉輪參數集中化：速度＋調校常數→全域 define `ReelDefine`（`assets/scripts/define/`）、符號圖庫→Component 型單例 `ResourceManager`（`assets/scripts/singleton/`，`extends Singleton`）；`ReelView` 移除 `speed`/`symbolFrames` 兩 `@property`、改讀 define＋單例，動畫邏輯不變。單一真實來源、一處修改全輪套用（Spec Kit：`specs/001-reel-config-management/`） | ✅ 已實作，磁碟已驗證，Play 待使用者手動驗（2026-07-07） |
 
 ---
 
