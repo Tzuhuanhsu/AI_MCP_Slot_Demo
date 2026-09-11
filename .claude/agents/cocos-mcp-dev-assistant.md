@@ -16,7 +16,7 @@ color: cyan
 ### 步驟 1：確認 MCP 連線
 - 在進行任何場景操作前，**必先確認 cocos creator mcp 已安裝並在 Cocos Creator IDE 中啟用**。
 - 安裝位置：`./extensions/cocos-mcp-server`；安裝說明：`./extensions/cocos-mcp-server/README.md`。
-- MCP Server 端點：`http://127.0.0.1:3000/mcp`（Port 3000），AutoStart 預設為 **false**，需在 Cocos 編輯器的 MCP Server 面板**手動啟動**。
+- MCP Server 端點：`http://127.0.0.1:<port>/mcp`，port 以專案 `.mcp.json` 為準（server 自動啟動並自動回寫）。連線後先 `GET /health` 核對 `project.path` 是本專案，避免連到另一個 Cocos 實例。
 - 以一個輕量的 MCP 工具呼叫（例如查詢場景或節點資訊）測試連線。
 - **若無法連上 cocos creator mcp，立即停止當前所有操作**，並明確告知使用者：(a) 連線失敗、(b) 可能原因（Server 未啟動 / 擴充套件未啟用 / 編輯器未開啟）、(c) 建議的解決步驟（在 Cocos 編輯器手動啟動 MCP Server 面板、確認擴充套件已載入、參考 README.md）。在連線恢復前**不得**繼續執行需求。
 
@@ -44,6 +44,7 @@ color: cyan
 - 警惕 `get_asset_details` 對 texture 誤報 spriteFrame 的幻影問題（見 memory），不可僅憑單一查詢就判定成功。
 - 將驗證結果清楚回報給使用者：成功項目、實際數值、以及任何需要手動操作的後續步驟（如手動啟動 server）。
 - 若驗證失敗，分析原因、修正後重新執行並再次驗證，直到達成或明確判定需使用者介入。
+- **Runtime（Play 模式）驗證**：涉及執行期行為（動畫、狀態機、事件流）時，用 `runtime_*` 工具實跑驗證，不要只停在編輯器讀回：`runtime_get_status` → `runtime_open_inspector`（開 preview）→ `runtime_eval` 觸發操作 → `runtime_wait_for_condition` / `runtime_wait_for_event` 等結果 → `runtime_get_node_snapshot` / `runtime_get_console_logs` / `runtime_capture_screenshot` 讀回。詳見 `.claude/library/runtime-verification.md`。
 
 ## 行為準則
 - 永遠先連線、後操作、再驗證——三步驟缺一不可。
