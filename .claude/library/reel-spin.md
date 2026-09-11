@@ -229,6 +229,8 @@ Reel_3 `54ge/nvxtN26ZEyN5aaQ30` / `ca+gF1Do1DY7HKhEtDhU9Q`。
 
 `update()` 只在執行時跑。MCP 的 `project_run_project` 只能開 Build 面板、無法自動啟動 preview，且 debug_execute_script 跑在編輯器場景 runtime（非外部 preview runtime），故採「編輯器場景手動驅動 update 迴圈、逐幀讀節點 y 與 spriteFrame」作為執行期驗證（與 preview 共用同一 transform 系統）；**外部 preview 目視由使用者手動點播放**。
 
+> 2026-09-10 更新：現已有 `runtime_*` 工具（見 [runtime-verification.md](runtime-verification.md)）——`runtime_open_inspector` 開 preview、`runtime_eval` 觸發 `spinAll()`、`runtime_wait_for_condition` 等三輪 `isIdle()`、`runtime_get_node_snapshot` 讀 `_currentSpeed`/`_remainingSteps`、`runtime_capture_screenshot` 看畫面。下方「編輯器場景模擬 start()」的作法仍可用，但已非必要。
+
 > ⚠️ 編輯器場景**非 Play Mode**，元件生命週期 `start()` 不會自動被呼叫，`_machine` 未 `start()` 則 `spin()` 的 `is(IDLE)` guard 恆 false 直接 return（看起來完全不動、非 bug）。用 debug_execute_script 驗證前須先手動呼叫 `reelView['_collectUnits']()`、`_initFrames()`、`_setupStateMachine()` 模擬 `start()`。
 
 1. 點 SPIN → 三輪同時起轉，全排 symbol 在單格內平滑下滑、到格邊界整排下移一列圖、頂格換新隨機圖，靠「節點彈回一格」抵消「整排圖下移一格」形成連貫捲動；被轉輪窗裁切、間距始終一致。

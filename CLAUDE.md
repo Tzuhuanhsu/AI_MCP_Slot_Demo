@@ -24,10 +24,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 專案概述
 
-MCPCocosDemo 是一個 **Cocos Creator 3.8.3+ 3D 遊戲場景測試專案**，整合了 `cocos-mcp-server` 擴充套件（v1.4.0），讓 Claude Code 可透過 MCP 協定直接操控 Cocos 編輯器場景。
+MCPCocosDemo 是一個 **Cocos Creator 3.8.3+ 3D 遊戲場景測試專案**，整合了 `cocos-mcp-server` 擴充套件（v2.0.0，內含 Runtime Inspector），讓 Claude Code 可透過 MCP 協定直接操控 Cocos 編輯器場景，並讀取 Play 模式的執行結果。
 
 - **設計解析度**：960 × 640
-- **MCP Server 端點**：`http://127.0.0.1:3000/mcp`（Port 3000，需在 Cocos 編輯器手動啟動）
+- **MCP Server 端點**：`http://127.0.0.1:<port>/mcp` —— port 由專案 uuid 雜湊自動決定（本專案目前設定為 1000），編輯器開啟即自動啟動，並自動回寫 `.mcp.json`；以 `GET /health` 的 `project.path` 核對連到的是本專案
 
 ## Extension 開發指令
 
@@ -51,7 +51,8 @@ TypeScript 設定繼承自 `./temp/tsconfig.cocos.json`（Cocos 自動產生）�
 ### MCP 工具層（`extensions/cocos-mcp-server/dist/tools/`）
 - `node-tools.js`：節點建立、刪除、移動、屬性設定、Transform 操作
 - `component-tools.js`：元件新增/移除、屬性設定（含 Color/Size 特殊處理）
-- 工具總數 120+，分 14 類，全部在 `settings/tool-manager.json` 中登錄
+- `runtime-tools.js`：Play 模式 runtime 工具（eval／節點快照／console／截圖／等待條件），經 `inspector/` 內建的 Runtime Inspector 驅動 preview 遊戲頁
+- 工具總數 167，分 15 類，全部預設啟用；要隱藏個別工具用 `settings/mcp-server.json` 的 `disabledTools` 黑名單
 
 ### 場景結構（`assets/scene/main.scene`）
 ```
@@ -62,8 +63,8 @@ main (Scene)
 ```
 
 ### 設定檔
-- `settings/mcp-server.json`：Port、AutoStart（預設 false）、連線數
-- `settings/tool-manager.json`：所有 MCP 工具的啟用清單
+- `settings/mcp-server.json`：`port`（null = 自動雜湊）、`autoStart`（預設 true）、`disabledTools`、連線數
+- `settings/cocos-inspector.json`：Runtime Inspector 視窗設定（自動產生）
 - `.mcp.json`：Claude Code 連接 MCP Server 的端點設定
 
 ## 已知 Bug（cocos-mcp-server v1.4.0）— 已全數修正
@@ -88,4 +89,6 @@ main (Scene)
 - 改 `dist/*.js` 後，執行中的 MCP server 不會熱載入，須**重載擴充套件或重啟編輯器**才生效
 - `color` 可傳 RGBA 物件 `{r,g,b,a}` 或 hex 字串 `"#RRGGBBAA"`（皆已支援）
 - 設 `SpriteFrame[]` 等資產陣列：用 `propertyType: 'spriteFrameArray'`，`value` 傳 uuid 字串陣列
-- Server AutoStart 為 false，需在 Cocos 編輯器的 MCP Server 面板手動啟動
+- Server 隨編輯器自動啟動（`autoStart` 預設 true）；port 變動時 `.mcp.json` 會被自動改寫，執行中的 Claude Code session 需 `/mcp` 重連
+- **Play 模式驗證**用 `runtime_*` 工具（經 `extensions/cocos-mcp-server/inspector/` 內建的 Runtime Inspector 操作 preview 遊戲頁：eval／節點快照／console／截圖／等待條件），詳見 `.claude/library/runtime-verification.md`；`debug_execute_script` 只跑在編輯器場景，不是 preview
+- 改 `inspector/src` 後要 `npm run build`（esbuild）；`inspector/dist/main.js`、`package.json` 變更同樣需重啟編輯器
